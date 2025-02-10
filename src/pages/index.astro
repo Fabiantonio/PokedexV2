@@ -5,13 +5,26 @@ import { getPokemons, getPokemonDetails } from "../utils/pokemon";
 
 const pokemons = await getPokemons(151, 0);
 const pokemonDetails = await Promise.all(
-  pokemons.map(async (pokemon) => ({
+  pokemons.map(async (pokemon: Pokemon) => ({
     ...pokemon,
     details: await getPokemonDetails(
       `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
     ),
   }))
 );
+
+interface Pokemon {
+  name: string;
+  url: string;
+  details?: PokemonDetails; // Asegúrate de definir también el tipo `PokemonDetails`
+}
+
+interface PokemonDetails {
+  sprites: {
+    front_default: string;
+  };
+  // Agrega otras propiedades que necesites
+}
 ---
 
 <Layout>
@@ -73,8 +86,8 @@ const pokemonDetails = await Promise.all(
   </main>
 </Layout>
 
-<script is:inline>
-document.addEventListener("DOMContentLoaded", () => {
+<script>
+document.addEventListener("astro:page-load", () => {
   const searchInput = document.getElementById("search");
   const pokemonCards = document.querySelectorAll(".pokemon-card");
   const noResultsMessage = document.getElementById("no-results");
