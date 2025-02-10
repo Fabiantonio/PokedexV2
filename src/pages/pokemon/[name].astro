@@ -1,0 +1,121 @@
+---
+import { getPokemons, getPokemonDetails } from "../../utils/pokemon";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const pokemons = await getPokemons(151);
+  const paths = await Promise.all(
+    pokemons.map(async (pokemon) => ({
+      params: { name: pokemon.name },
+      props: {
+        pokemon: await getPokemonDetails(
+          `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
+        ),
+      },
+    }))
+  );
+  return paths;
+}
+
+const { pokemon } = Astro.props;
+
+// Mapeo de colores según el tipo de Pokémon
+const typeColors = {
+  grass: "#78C850",
+  fire: "#F08030",
+  water: "#6890F0",
+  bug: "#A8B820",
+  normal: "#A8A878",
+  poison: "#A040A0",
+  electric: "#F8D030",
+  ground: "#E0C068",
+  fairy: "#EE99AC",
+  fighting: "#C03028",
+  psychic: "#F85888",
+  rock: "#B8A038",
+  ghost: "#705898",
+  ice: "#98D8D8",
+  dragon: "#7038F8",
+  dark: "#705848",
+  steel: "#B8B8D0",
+};
+
+// Usamos el primer tipo para definir el color principal de la carta
+---
+
+<Layout>
+  <div class="flex items-center justify-center">
+    <!-- Aplicamos el color dinámico aquí -->
+    <div 
+      class="p-8 rounded-2xl shadow-2xl relative max-w-md w-full transition-colors bg-[#0f0f0f] "
+    >
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-3xl md:text-4xl font-bold capitalize text-white drop-shadow-md">
+          {pokemon.name}
+        </h2>
+        <span class="text-xl text-white font-semibold drop-shadow-md">
+          #{String(pokemon.id).padStart(3, '0')}
+        </span>
+      </div>
+
+      <!-- Contenedor de imagen con fondo semi-transparente -->
+      <div class="bg-white/5 rounded-full p-4 mb-6">
+        <img
+          src={pokemon.sprites.front_default}
+          alt={pokemon.name}
+          class="mx-auto w-32 h-32 md:w-40 md:h-40"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <!-- Tipos con key única -->
+      <div class="flex justify-center gap-2 mb-6">
+        {pokemon.types.map((type) => {
+          const typeName = type.type.name;
+          const typeColor = typeColors[typeName];
+          return (
+            <span 
+              class="px-3 py-1 rounded-full text-sm font-semibold shadow-md"
+              style={`background: ${typeColor}; color: white;`}
+            >
+              {typeName}
+            </span>
+          );
+        })}
+      </div>
+
+      <!-- Sección de habilidades con truncado -->
+      <div class="space-y-3 text-white">
+        <div>
+          <h3 class="text-sm opacity-80">Habilidades</h3>
+          <p class="truncate">
+            {pokemon.abilities.map(a => a.ability.name).join(" / ")}
+          </p>
+        </div>
+        
+        <!-- Estadísticas adicionales -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <span class="text-sm opacity-80">Altura</span>
+            <p class="text-lg">{(pokemon.height / 10).toFixed(1)} m</p>
+          </div>
+          <div>
+            <span class="text-sm opacity-80">Peso</span>
+            <p class="text-lg">{(pokemon.weight / 10).toFixed(1)} kg</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón con color coherente -->
+      <div class="mt-8 flex justify-center">
+        <a
+          href="/"
+          class="px-6 py-2 bg-orange-600 hover:bg-orange-700 rounded-md text-white font-medium transition-colors backdrop-blur-sm"
+        >
+          Volver al listado
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
