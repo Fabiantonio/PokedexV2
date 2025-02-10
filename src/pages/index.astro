@@ -93,16 +93,16 @@ document.addEventListener("astro:page-load", () => {
   const noResultsMessage = document.getElementById("no-results");
 
   searchInput.addEventListener("input", (event) => {
-    const searchValue = event.target.value.toLowerCase();
+    const searchValue = (event.target as HTMLInputElement).value.toLowerCase();
     let hasResults = false;
 
     pokemonCards.forEach((card) => {
       const name = card.getAttribute("data-name");
       if (name.includes(searchValue)) {
-        card.style.display = "block";
+        (card as HTMLElement).style.display = "block";
         hasResults = true;
       } else {
-        card.style.display = "none";
+        (card as HTMLElement).style.display = "none";
       }
     });
 
